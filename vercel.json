@@ -4,6 +4,7 @@
   "installCommand": "cd client && npm install",
   "framework": "vite",
   "rewrites": [
+    { "source": "/api/(.*)", "status": 404 },
     { "source": "/((?!assets/).*)", "destination": "/index.html" }
   ]
 }

@@ -1,26 +1,36 @@
 import { AuthResponse, LoginFormData, RegisterRequest } from '../types';
 
-const API_BASE_URL = '/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 class ApiService {
   private async request<T>(
     endpoint: string,
     options: RequestInit = {}
   ): Promise<T> {
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      ...options,
-      credentials: 'include',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
-    });
+    let response: Response;
+    try {
+      response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        ...options,
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...options.headers,
+        },
+      });
+    } catch {
+      throw new Error('Server unavailable. Please try again later.');
+    }
 
-    const text = await response.text();
-    const data = text ? JSON.parse(text) : ({} as T);
+    let data: T | { error?: string } = {};
+    try {
+      const text = await response.text();
+      if (text) data = JSON.parse(text);
+    } catch {
+      // Non-JSON response
+    }
 
     if (!response.ok) {
-      throw new Error(data?.error || 'Something went wrong');
+      throw new Error((data as { error?: string })?.error || 'Something went wrong');
     }
 
     return data as T;
