@@ -16,12 +16,14 @@ class ApiService {
       },
     });
 
+    const text = await response.text();
+    const data = text ? JSON.parse(text) : ({} as T);
+
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Something went wrong');
+      throw new Error(data?.error || 'Something went wrong');
     }
 
-    return response.json();
+    return data as T;
   }
 
   async login(data: LoginFormData): Promise<AuthResponse> {
