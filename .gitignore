@@ -1,0 +1,5 @@
+cred
+node_modules/
+dist/
+.vite/
+*.log
